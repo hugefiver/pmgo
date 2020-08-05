@@ -32,7 +32,7 @@ import (
 	"github.com/struCoder/pmgo/lib/utils"
 	"github.com/struCoder/pmgo/lib/watcher"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // Master is the main module that keeps everything in place and execute
@@ -147,15 +147,28 @@ func (master *Master) WatchProcs() {
 
 // Prepare will compile the source code into a binary and return a preparable
 // ready to be executed.
-func (master *Master) Prepare(sourcePath string, name string, language string, keepAlive bool, args []string) (preparable.ProcPreparable, []byte, error) {
-	procPreparable := &preparable.Preparable{
-		Name:       name,
-		SourcePath: sourcePath,
-		SysFolder:  master.SysFolder,
-		Language:   language,
-		KeepAlive:  keepAlive,
-		Args:       args,
+func (master *Master) Prepare(sourcePath string, name string, language string, keepAlive bool, args []string, fromBin bool) (preparable.ProcPreparable, []byte, error) {
+	var procPreparable preparable.ProcPreparable
+	if fromBin {
+		procPreparable = &preparable.BinaryPreparable{
+			Name:       name,
+			SourcePath: sourcePath,
+			SysFolder:  master.SysFolder,
+			Language:   language,
+			KeepAlive:  keepAlive,
+			Args:       args,
+		}
+	} else {
+		procPreparable = &preparable.Preparable{
+			Name:       name,
+			SourcePath: sourcePath,
+			SysFolder:  master.SysFolder,
+			Language:   language,
+			KeepAlive:  keepAlive,
+			Args:       args,
+		}
 	}
+
 	output, err := procPreparable.PrepareBin()
 	return procPreparable, output, err
 }
